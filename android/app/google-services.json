@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "169893296761",
+    "project_id": "evoria-a72c3",
+    "storage_bucket": "evoria-a72c3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:169893296761:android:c776224e133186f01db2a8",
+        "android_client_info": {
+          "package_name": "com.example.evoria_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXS7LcD_YbpV2FMzFjHBlxFUU7zI4gWr0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
