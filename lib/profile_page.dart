@@ -2,7 +2,6 @@
 // profile_page.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'event.dart';
 import 'user_profile.dart';
 import 'login_signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Make sure to import this
@@ -228,7 +227,10 @@ class ProfilePage extends StatelessWidget {
                           children: [
                             Icon(Icons.calendar_today, size: 12, color: Colors.grey[300]),
                             const SizedBox(width: 4),
-                            Text(event.date, style: TextStyle(color: Colors.grey[300], fontSize: 10)),
+                            Text(
+                              "${event.date.day}/${event.date.month}/${event.date.year}",
+                              style: TextStyle(color: Colors.grey[300], fontSize: 10),
+                            ),
                           ],
                         ),
                       ],

@@ -46,8 +46,9 @@ class MyApp extends StatelessWidget {
       myEvents: [
         Event(
           id: '1',
+          name: 'Birthday Party', // Added required name parameter
           title: 'Birthday Party',
-          date: 'May 15, 2025',
+          date: DateTime(2025, 5, 15),
           time: '6:00 PM',
           location: 'Home',
           imageUrl: 'https://example.com/event1.jpg',
@@ -61,8 +62,9 @@ class MyApp extends StatelessWidget {
         ),
         Event(
           id: '2',
+          name: 'Wedding Anniversary', // Added required name parameter
           title: 'Wedding Anniversary',
-          date: 'June 20, 2025',
+          date: DateTime(2025, 6, 20),
           time: '7:30 PM',
           location: 'Grand Hotel',
           imageUrl: 'https://example.com/event2.jpg',
@@ -94,9 +96,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       // Change the initial route based on login status
-      home: isLoggedIn 
-          ? HomeScreen(userProfile: dummyUserProfile) 
-          : const SplashScreen(), // Use SplashScreen as the entry point
+      home: isLoggedIn
+           ? HomeScreen(userProfile: dummyUserProfile)
+           : const SplashScreen(), // Use SplashScreen as the entry point
       routes: {
         '/splash': (context) => const SplashScreen(),
         '/login_signup': (context) => LoginSignupScreen(),
@@ -108,7 +110,7 @@ class MyApp extends StatelessWidget {
         if (settings.name == '/vendor_details') {
           final vendor = settings.arguments as Vendor;
           return MaterialPageRoute(
-            builder: (context) => VendorDetailsScreen(vendor: vendor),
+            builder: (context) => VendorDetailsScreen(vendorData: vendor),
           );
         }
         return null; // fallback if route not matched

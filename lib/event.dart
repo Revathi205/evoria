@@ -3,33 +3,34 @@ import 'package:flutter/material.dart';
 class Event {
   final String id;
   final String name;
-  final String? venue; // Add if needed
-  final int? expectedGuests; // Add if needed
-  final double? budget; // Add if needed
-  final DateTime? eventDate; // Add if needed
-  final TimeOfDay? eventTime; // Add if needed
+  final String? venue;
+  final int? expectedGuests;
+  final double? budget;
+  final DateTime? eventDate;
+  final TimeOfDay? eventTime;
   final String title;
   final String description;
-  final String time;
+  final String? time; // Changed to nullable for consistency
   final String imageUrl;
-  final String date;
-  final String dateTime; // Added to match stored data
+  final DateTime date; // Changed to DateTime instead of String
+  final String dateTime; // Keep for backward compatibility
   final String location;
   final String theme;
-  final String? notes; // Added to match stored data
-  final String category; // Added to match stored data
-  final String type; // Added to match stored data
-  final int? color; // Added to match stored data (color as number)
-  final String? colorHex; // Added to match stored data
-  final double? price; // Added to match stored data
-  final List<String>? tags; // Added to match stored data
-  final List<String>? attendees; // Added to match stored data
-  final List<String>? vendors; // Added to match stored data
+  final String? notes;
+  final String category;
+  final String type;
+  final int? color;
+  final String? colorHex;
+  final double? price;
+  final List<String>? tags;
+  final List<String>? attendees;
+  final List<String>? vendors;
   final bool enableRSVP;
   final bool enableBudgetTracker;
   final bool enableTodoChecklist;
   final DateTime createdAt;
-  final DateTime? updatedAt; // Added to match stored data
+  final DateTime? updatedAt;
+  final int? guestCount; // Added from the new version
 
   Event({
     required this.id,
@@ -41,9 +42,9 @@ class Event {
     this.eventTime,
     required this.title,
     required this.description,
-    required this.time,
+    this.time,
     required this.imageUrl,
-    required this.date,
+    required this.date, // Now required DateTime
     String? dateTime,
     required this.location,
     required this.theme,
@@ -61,7 +62,8 @@ class Event {
     required this.enableTodoChecklist,
     required this.createdAt,
     this.updatedAt,
-  }) : dateTime = dateTime ?? date,
+    this.guestCount,
+  }) : dateTime = dateTime ?? date.toIso8601String().split('T')[0], // Generate from DateTime
        category = category ?? 'General',
        type = type ?? 'General';
 
@@ -79,7 +81,7 @@ class Event {
       'description': description,
       'time': time,
       'imageUrl': imageUrl,
-      'date': date,
+      'date': date.toIso8601String(), // Convert DateTime to String for storage
       'dateTime': dateTime,
       'location': location,
       'theme': theme,
@@ -97,6 +99,7 @@ class Event {
       'enableTodoChecklist': enableTodoChecklist,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'guestCount': guestCount,
     };
   }
 
@@ -115,9 +118,11 @@ class Event {
       ) : null,
       title: map['title'] ?? map['name'] ?? '',
       description: map['description'] ?? '',
-      time: map['time'] ?? '',
+      time: map['time'],
       imageUrl: map['imageUrl'] ?? '',
-      date: map['date'] ?? '',
+      date: map['date'] is String 
+          ? DateTime.parse(map['date']) 
+          : map['date'] ?? DateTime.now(), // Improved date parsing
       dateTime: map['dateTime'] ?? map['date'] ?? '',
       location: map['location'] ?? '',
       theme: map['theme'] ?? 'Classic',
@@ -133,12 +138,15 @@ class Event {
       enableRSVP: map['enableRSVP'] ?? false,
       enableBudgetTracker: map['enableBudgetTracker'] ?? false,
       enableTodoChecklist: map['enableTodoChecklist'] ?? false,
-      createdAt: map['createdAt'] != null 
-          ? DateTime.parse(map['createdAt'])
-          : DateTime.now(),
+      createdAt: map['createdAt'] is String 
+          ? DateTime.parse(map['createdAt']) 
+          : map['createdAt'] ?? DateTime.now(), // Improved createdAt parsing
       updatedAt: map['updatedAt'] != null 
-          ? DateTime.parse(map['updatedAt'])
+          ? (map['updatedAt'] is String 
+              ? DateTime.parse(map['updatedAt'])
+              : map['updatedAt'])
           : null,
+      guestCount: map['guestCount'],
     );
   }
 
@@ -155,7 +163,7 @@ class Event {
     String? description,
     String? time,
     String? imageUrl,
-    String? date,
+    DateTime? date, // Changed to DateTime
     String? dateTime,
     String? location,
     String? theme,
@@ -173,6 +181,7 @@ class Event {
     bool? enableTodoChecklist,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? guestCount,
   }) {
     return Event(
       id: id ?? this.id,
@@ -204,13 +213,14 @@ class Event {
       enableTodoChecklist: enableTodoChecklist ?? this.enableTodoChecklist,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
+      guestCount: guestCount ?? this.guestCount,
     );
   }
 
   // Utility methods
   DateTime get eventDateTime {
     try {
-      return DateTime.parse(dateTime);
+      return date; // Use the DateTime field directly
     } catch (e) {
       return DateTime.now();
     }
@@ -233,16 +243,16 @@ class Event {
   }
 
   String get formattedDate {
-    final date = eventDateTime;
-    return '${date.day}/${date.month}/${date.year}';
+    final eventDate = eventDateTime;
+    return '${eventDate.day}/${eventDate.month}/${eventDate.year}';
   }
 
   String get formattedDateTime {
-    final date = eventDateTime;
-    return '${date.day}/${date.month}/${date.year} at ${time}';
+    final eventDate = eventDateTime;
+    return '${eventDate.day}/${eventDate.month}/${eventDate.year}${time != null ? ' at $time' : ''}';
   }
 
-  int get attendeeCount => attendees?.length ?? 0;
+  int get attendeeCount => attendees?.length ?? guestCount ?? 0; // Use guestCount as fallback
   int get vendorCount => vendors?.length ?? 0;
   int get tagCount => tags?.length ?? 0;
 
@@ -262,6 +272,6 @@ class Event {
 
   @override
   String toString() {
-    return 'Event{id: $id, title: $title, date: $date, location: $location}';
+    return 'Event{id: $id, title: $title, date: ${formattedDate}, location: $location}';
   }
 }

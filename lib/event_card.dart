@@ -36,7 +36,7 @@ class EventCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12.0)),
                   child: Image.asset(
-                    event.imageUrl ?? 'assets/default_event.jpg',
+                    event.imageUrl,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
@@ -54,7 +54,7 @@ class EventCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      event.title ?? 'Event',
+                      event.title,
                       style: TextStyle(
                         fontSize: isSmall ? 12.0 : 16.0,
                         fontWeight: FontWeight.bold,
@@ -64,7 +64,7 @@ class EventCard extends StatelessWidget {
                     ),
                     SizedBox(height: isSmall ? 2.0 : 6.0),
                     Text(
-                      event.location ?? '',
+                      event.location,
                       style: TextStyle(
                         fontSize: isSmall ? 10.0 : 13.0,
                         color: Colors.grey[600],

@@ -31,19 +31,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
       // Simple date parsing for demo purposes
       // Format: 'Jun 15-16', 'Jul 21', etc.
       try {
-        final List<String> dateComponents = event.date.split(' ')[0].split('-');
-        final String monthStr = dateComponents[0];
-        final int day = int.parse(dateComponents[1]);
-        
-        // Map month string to number
-        const Map<String, int> months = {
-          'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-          'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
-        };
-        
-        final int month = months[monthStr] ?? 1;
-        final int year = DateTime.now().year;
-        
+        final int year = event.date.year;
+        final int month = event.date.month;
+        final int day = event.date.day;
+
         final DateTime eventDate = DateTime(year, month, day);
         if (_events[eventDate] == null) {
           _events[eventDate] = [];
@@ -177,7 +168,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 4),
-                Text(event.time),
+                Text(event.time ?? ''),
                 SizedBox(height: 2),
                 Text(event.location),
               ],

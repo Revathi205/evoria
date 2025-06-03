@@ -766,53 +766,60 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
   }
 
   // Create event method
-  Future<void> _createEvent() async {
-    if (!_validateForm()) {
-      return;
-    }
-
-    setState(() {
-      _isCreating = true;
-    });
-
-    try {
-      final event = Event(
-        id: '', // Firestore will generate this
-        title: _eventNameController.text.trim(),
-        description: _eventType,
-        time: _dateTimeController.text.trim(),
-        imageUrl: '', // Placeholder for now
-        date: (_selectedDateTime ?? DateTime.now()).toIso8601String(),
-        location: _locationController.text.trim(),
-        theme: _selectedTheme,
-        enableRSVP: _enableRSVP,
-        enableBudgetTracker: _enableBudgetTracker,
-        enableTodoChecklist: _enableTodoChecklist,
-        createdAt: DateTime.now(),
-      );
-
-      // Save to Firebase and get the event ID
-      final eventId = await FirebaseService.createEvent(event);
-
-      _showSuccessMessage('Event created successfully!');
-
-      // Optionally, fetch the event from Firebase if you want the latest data (with ID)
-      // final createdEvent = await FirebaseService.getEventById(eventId);
-
-      // Navigate to EventOverviewPage and pass the event (or eventId)
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => EventOverviewPage(event: event),
-        ),
-      );
-    } catch (e) {
-      print("Error creating event: $e");
-      _showErrorMessage('Failed to create event: ${e.toString()}');
-    } finally {
-      setState(() {
-        _isCreating = false;
-      });
-    }
+ // Create event method
+Future<void> _createEvent() async {
+  if (!_validateForm()) {
+    return;
   }
+
+  setState(() {
+    _isCreating = true;
+  });
+
+  try {
+    final event = Event(
+      id: '', // Firestore will generate this, or you can use Uuid().v4()
+      name: _eventNameController.text.trim(), // Use the actual event name
+      title: _eventNameController.text.trim(),
+      description: _eventType, // You might want to use a proper description field
+      time: _dateTimeController.text.trim(),
+      imageUrl: '', // Placeholder for now
+      date: _selectedDateTime ?? DateTime.now(), // Pass DateTime object directly
+      location: _locationController.text.trim(),
+      theme: _selectedTheme,
+      colorHex: '#${_selectedColor.value.toRadixString(16).substring(2)}', // Convert color to hex
+      category: _eventType, // Add category field
+      type: _eventType, // Add type field
+      enableRSVP: _enableRSVP,
+      enableBudgetTracker: _enableBudgetTracker,
+      enableTodoChecklist: _enableTodoChecklist,
+      createdAt: DateTime.now(),
+      guestCount: 0, // Initialize guest count
+    );
+
+    // Save to Firebase and get the event ID
+    final eventId = await FirebaseService.createEvent(event);
+
+    _showSuccessMessage('Event created successfully!');
+
+    // Create a new event with the generated ID for navigation
+    final eventWithId = event.copyWith(id: eventId);
+
+    // Navigate to EventOverviewPage and pass the event with ID
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventOverviewPage(event: eventWithId),
+      ),
+    );
+  } catch (e) {
+    print("Error creating event: $e");
+    _showErrorMessage('Failed to create event: ${e.toString()}');
+  } finally {
+    setState(() {
+      _isCreating = false;
+    });
+  }
+} // <- This closing brace was missing
+
 }

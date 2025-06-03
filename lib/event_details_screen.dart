@@ -83,7 +83,7 @@ class EventDetailsScreen extends StatelessWidget {
                       const Spacer(),
                       const Icon(Icons.calendar_today, size: 16.0),
                       const SizedBox(width: 4.0),
-                      Text(event.date),
+                      Text(event.date.toString()),
                     ],
                   ),
                   const SizedBox(height: 12.0),
@@ -120,7 +120,7 @@ class EventDetailsScreen extends StatelessWidget {
                       const Icon(Icons.access_time, color: Colors.pink),
                       const SizedBox(width: 8.0),
                       Text(
-                        event.time,
+                        event.time ?? '',
                         style: const TextStyle(
                           fontSize: 16.0,
                         ),
@@ -153,7 +153,7 @@ class EventDetailsScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8.0),
-                  Text(event.description ?? 'No description available'),
+                  Text(event.description),
                   const SizedBox(height: 16.0),
                   
                   // Tags

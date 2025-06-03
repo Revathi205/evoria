@@ -1,11 +1,12 @@
 import 'package:evoria_app/event.dart';
-import 'package:evoria_app/vendor.dart';
+import 'package:evoria_app/vendor.dart' as vendor_lib;
 import 'package:evoria_app/event_service.dart';
 import 'package:evoria_app/vendor_detail_screen.dart';
 import 'package:evoria_app/payment_details_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+// Removed duplicate vendor.dart import
+import 'package:evoria_app/vendors_screen.dart';
 class EventOverviewPage extends StatefulWidget {
   final Event event;
   const EventOverviewPage({Key? key, required this.event}) : super(key: key);
@@ -17,7 +18,7 @@ class EventOverviewPage extends StatefulWidget {
 class _EventOverviewPageState extends State<EventOverviewPage> 
     with RouteAware, WidgetsBindingObserver {
   final EventService _eventService = EventService();
-  List<Vendor> _eventVendors = [];
+  List<vendor_lib.Vendor> _eventVendors = [];
   bool _isLoadingVendors = true;
   late Event _currentEvent;
   Timer? _refreshTimer;
@@ -74,7 +75,8 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     });
 
     try {
-      List<Vendor> vendors = await _eventService.getEventVendors(_currentEvent.id);
+      var vendorsRaw = await _eventService.getEventVendors(_currentEvent.id);
+      List<vendor_lib.Vendor> vendors = vendorsRaw.cast<vendor_lib.Vendor>();
       if (!_isDisposed && mounted) {
         setState(() {
           _eventVendors = vendors;
@@ -97,7 +99,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
   }
 
   // Method to navigate to vendor detail screen
-  void _navigateToVendorDetail(Vendor vendor) {
+  void _navigateToVendorDetail(vendor_lib.Vendor vendor) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -108,6 +110,21 @@ class _EventOverviewPageState extends State<EventOverviewPage>
       ),
     ).then((_) {
       // Refresh the vendor list when returning from vendor detail screen
+      _loadEventVendors();
+    });
+  }
+
+  // Method to navigate to add new vendor
+  void _navigateToAddVendor() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VendorDetailsScreen(
+          vendorData: _createEmptyVendor(),
+          eventId: _currentEvent.id,
+        ),
+      ),
+    ).then((_) {
       _loadEventVendors();
     });
   }
@@ -141,7 +158,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                 // Timeline Section (if enabled)
                 if (_currentEvent.enableTodoChecklist) _buildTimelineSection(),
                 
-                // Quick Actions
+                // Quick Actions - REMOVED Add Vendor from here
                 _buildQuickActionsSection(),
                 
                 // Budget Section (if enabled)
@@ -363,7 +380,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
           const SizedBox(height: 12),
           _buildDetailRow('Date', _formatDate(_currentEvent.date)),
           _buildDetailRow('Time', _currentEvent.time ?? 'Not set'),
-          _buildDetailRow('Location', _currentEvent.location ?? 'Not set'),
+          _buildDetailRow('Location', _currentEvent.location),
           _buildDetailRow('Guests', '${_currentEvent.guestCount ?? 0} expected'),
         ],
       ),
@@ -435,6 +452,37 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                   color: Color(0xFF1C0D12),
                 ),
               ),
+              // SINGLE Add Vendor button - this is the only one we keep
+              GestureDetector(
+                onTap: _navigateToAddVendor,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF00861),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'Add Vendor',
+                        style: TextStyle(
+                          fontFamily: 'Spline Sans',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               if (_isLoadingVendors)
                 const SizedBox(
                   width: 16,
@@ -448,14 +496,29 @@ class _EventOverviewPageState extends State<EventOverviewPage>
           ),
           const SizedBox(height: 12),
           if (_eventVendors.isEmpty && !_isLoadingVendors)
-            const Text(
-              'No vendors added yet',
-              style: TextStyle(
-                fontFamily: 'Spline Sans',
-                fontWeight: FontWeight.w400,
-                fontSize: 14,
-                color: Color(0xFF666666),
-              ),
+            Column(
+              children: [
+                const Text(
+                  'No vendors added yet',
+                  style: TextStyle(
+                    fontFamily: 'Spline Sans',
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    color: Color(0xFF666666),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // REMOVED - This duplicate "Add Your First Vendor" button
+                Text(
+                  'Use the "Add Vendor" button above to get started',
+                  style: TextStyle(
+                    fontFamily: 'Spline Sans',
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xFF999999),
+                  ),
+                ),
+              ],
             )
           else
             Column(
@@ -466,7 +529,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     );
   }
 
-  Widget _buildVendorItem(Vendor vendor) {
+  Widget _buildVendorItem(vendor_lib.Vendor vendor) {
     return GestureDetector(
       onTap: () => _navigateToVendorDetail(vendor),
       child: Container(
@@ -506,16 +569,15 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                       color: Color(0xFF1C0D12),
                     ),
                   ),
-                  if (vendor.category != null)
-                    Text(
-                      vendor.category!,
-                      style: const TextStyle(
-                        fontFamily: 'Spline Sans',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                        color: Color(0xFF666666),
-                      ),
+                  Text(
+                    vendor.category,
+                    style: const TextStyle(
+                      fontFamily: 'Spline Sans',
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                      color: Color(0xFF666666),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -572,6 +634,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     );
   }
 
+  // UPDATED - Removed Add Vendor from Quick Actions
   Widget _buildQuickActionsSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -579,25 +642,50 @@ class _EventOverviewPageState extends State<EventOverviewPage>
         children: [
           Expanded(
             child: _buildActionButton(
-              'Add Vendor',
-              Icons.add_business,
+              'Invite Guests',
+              Icons.person_add,
               () {
-                // Navigate to add vendor page
+                // Navigate to invite guests page
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Invite guests functionality coming soon!'),
+                  ),
+                );
               },
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: _buildActionButton(
-              'Invite Guests',
-              Icons.person_add,
+              'View Timeline',
+              Icons.timeline,
               () {
-                // Navigate to invite guests page
+                // Navigate to timeline page
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Timeline view coming soon!'),
+                  ),
+                );
               },
             ),
           ),
         ],
       ),
+    );
+  }
+
+  // Helper method to create empty vendor for "add vendor" flow
+  vendor_lib.Vendor _createEmptyVendor() {
+    return vendor_lib.Vendor(
+      id: '', // Empty ID indicates new vendor
+      name: '',
+      category: '',
+      location: '',
+      description: '',
+      rating: 0.0,
+      imageUrl: '',
+      images: [],
+      tags: [],
     );
   }
 
@@ -676,42 +764,75 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     );
   }
 
-  Widget _buildCategoriesGrid() {
-    final categories = [
-      {'name': 'Catering', 'icon': Icons.restaurant},
-      {'name': 'Photography', 'icon': Icons.camera_alt},
-      {'name': 'Decoration', 'icon': Icons.celebration},
-      {'name': 'Music', 'icon': Icons.music_note},
-    ];
+// Update the _buildCategoriesGrid method in your EventOverviewPage
+Widget _buildCategoriesGrid() {
+  final categories = [
+    {'name': 'Catering', 'icon': Icons.restaurant},
+    {'name': 'Photography', 'icon': Icons.camera_alt},
+    {'name': 'Decoration', 'icon': Icons.celebration},
+    {'name': 'All Vendors', 'icon': Icons.store}, // Updated this item
+  ];
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Categories',
-            style: TextStyle(
-              fontFamily: 'Spline Sans',
-              fontWeight: FontWeight.w700,
-              fontSize: 18,
-              color: Color(0xFF1C0D12),
-            ),
+  return Container(
+    margin: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Categories',
+          style: TextStyle(
+            fontFamily: 'Spline Sans',
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            color: Color(0xFF1C0D12),
           ),
-          const SizedBox(height: 12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.5,
-            ),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return Container(
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.5,
+          ),
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            return GestureDetector(
+              onTap: () {
+                if (category['name'] == 'All Vendors') {
+                  // Navigate to VendorsScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VendorsScreen(
+                        eventId: _currentEvent.id,
+                        showAddToEventOption: true,
+                      ),
+                    ),
+                  ).then((_) {
+                    // Refresh vendor list when returning
+                    _loadEventVendors();
+                  });
+                } else {
+                  // Navigate to VendorsScreen with category filter
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VendorsScreen(
+                        eventId: _currentEvent.id,
+                        showAddToEventOption: true,
+                      ),
+                    ),
+                  ).then((_) {
+                    // Refresh vendor list when returning
+                    _loadEventVendors();
+                  });
+                }
+              },
+              child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -744,13 +865,14 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                     ),
                   ],
                 ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+  );
+}
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Not set';
