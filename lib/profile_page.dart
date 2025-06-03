@@ -1,15 +1,32 @@
 // profile_page.dart
-// profile_page.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'user_profile.dart';
 import 'login_signup_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Make sure to import this
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatelessWidget {
   final UserProfile userProfile;
 
   const ProfilePage({super.key, required this.userProfile});
+
+  // Updated theme data with image paths instead of icons
+  final List<Map<String, dynamic>> defaultThemes = const [
+    {'name': 'Wedding', 'image': 'assets/wedding.png'},
+    {'name': 'Birthday', 'image': 'assets/birthday.png'},
+    {'name': 'Corporate', 'image': 'assets/corporate.png'},
+    {'name': 'Outdoor', 'image': 'assets/outdoor.png'},
+    {'name': 'Party', 'image': 'assets/party.png'},
+    {'name': 'Elegant', 'image': 'assets/elegant.png'},
+  ];
+
+  // Updated wishlist data with image paths
+  final List<Map<String, dynamic>> defaultWishlist = const [
+    {'name': 'Dream Venue', 'image': 'assets/floral3.jpg'},
+    {'name': 'Floral Design', 'image': 'assets/floral2.jpg'},
+    {'name': 'Lighting Setup', 'image': 'assets/lights2.png'},
+    {'name': 'Decoration Ideas', 'image': 'assets/wedding_show.png'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +59,7 @@ class ProfilePage extends StatelessWidget {
             _buildMyEventsSection(),
             _buildSavedThemesGrid(),
             _buildWishlistSection(),
-            _buildSettingsSection(context), // Pass context to _buildSettingsSection
+            _buildSettingsSection(context),
             const SizedBox(height: 32),
           ],
         ),
@@ -246,110 +263,323 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildSavedThemesGrid() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Text(
-            'Saved Themes',
-            style: TextStyle(
-              fontSize: 16, 
-              fontWeight: FontWeight.bold,
-              color: Colors.black
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Saved Themes',
+              style: TextStyle(
+                fontSize: 16, 
+                fontWeight: FontWeight.bold,
+                color: Colors.black
+              ),
             ),
-          ),
+            TextButton(
+              onPressed: () {
+                // Add functionality to view all themes
+              },
+              child: Text(
+                'View All',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFFEC4899),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        if (userProfile.savedThemes.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              'No themes saved yet',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          )
-        else
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.0,
-            ),
-            itemCount: userProfile.savedThemes.length,
-            itemBuilder: (context, index) {
-              final theme = userProfile.savedThemes[index];
-              return Container(
+      ),
+      const SizedBox(height: 12),
+      GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.0,
+        ),
+        itemCount: defaultThemes.length > 6 ? 6 : defaultThemes.length,
+        itemBuilder: (context, index) {
+          final theme = defaultThemes[index];
+          
+          return Stack(
+            children: [
+              Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(image: NetworkImage(theme), fit: BoxFit.cover),
-                ),
-              );
-            },
-          ),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
-
-  Widget _buildWishlistSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Text(
-            'Wishlist / Inspiration',
-            style: TextStyle(
-              fontSize: 16, 
-              fontWeight: FontWeight.bold,
-              color: Colors.black
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (userProfile.wishlist.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              'No wishlist items yet',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          )
-        else
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              children: userProfile.wishlist.map((item) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey[100],
+                  border: Border.all(
+                    color: Colors.grey.shade200,
+                    width: 1,
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      item,
-                      width: double.infinity,
-                      height: 140,
-                      fit: BoxFit.cover,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      // Background image - FIXED: Only use Image.asset
+                      Image.asset(
+                        theme['image'],
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Better error handling with debugging info
+                          print('Failed to load asset: ${theme['image']}');
+                          print('Error: $error');
+                          return Container(
+                            color: Colors.grey[300],
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.image_not_supported,
+                                  color: Colors.grey[600],
+                                  size: 30,
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Image not found',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey[600],
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  theme['name'],
+                                  style: TextStyle(
+                                    fontSize: 8,
+                                    color: Colors.grey[500],
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      // Overlay with theme name
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.6),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        right: 8,
+                        child: Text(
+                          theme['name'],
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Add plus icon for themes
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.add,
+                    size: 16,
+                    color: Color(0xFFEC4899),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      const SizedBox(height: 24),
+    ],
+  );
+}
+
+ Widget _buildWishlistSection() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Wishlist / Inspiration',
+              style: TextStyle(
+                fontSize: 16, 
+                fontWeight: FontWeight.bold,
+                color: Colors.black
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Add functionality to add to wishlist
+              },
+              child: Text(
+                'Add More',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFFEC4899),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 12),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          children: defaultWishlist.take(4).map((item) { // Only show default items
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Stack(
+                children: [
+                  Container(
+                    height: 140,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.grey.shade200,
+                        width: 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Stack(
+                        children: [
+                          // Background image - FIXED: Only use Image.asset
+                          Image.asset(
+                            item['image'],
+                            width: double.infinity,
+                            height: 140,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              print('Failed to load wishlist asset: ${item['image']}');
+                              print('Error: $error');
+                              return Container(
+                                color: Colors.grey[300],
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.image_not_supported,
+                                      color: Colors.grey[600],
+                                      size: 40,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Image not found',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Text(
+                                      item['name'],
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey[500],
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                          // Overlay with item name
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.6),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 12,
+                            left: 12,
+                            right: 12,
+                            child: Text(
+                              item['name'],
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-          ),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
-  
-  Widget _buildSettingsSection(BuildContext context) { // Added context parameter
+                  // Add plus icon for wishlist items
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        size: 18,
+                        color: Color(0xFFEC4899),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+      const SizedBox(height: 24),
+    ],
+  );
+} 
+  Widget _buildSettingsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -375,86 +605,79 @@ class ProfilePage extends StatelessWidget {
           indent: 24,
           endIndent: 24,
         ),
-        _buildLogoutButton(context), // Pass context to _buildLogoutButton
+        _buildLogoutButton(context),
       ],
     );
   }
   
-  // Replacement for the _buildLogoutButton method in profile_page.dart
-// Replacement for the _buildLogoutButton method in profile_page.dart
-// Add this import at the top of your profile_page.dart file:
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'login_signup_screen.dart';
-Widget _buildLogoutButton(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-    child: InkWell(
-      onTap: () async {
-        // Show confirmation dialog
-        final shouldLogout = await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Logout'),
-              content: Text('Are you sure you want to logout?'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('Logout', style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            );
-          },
-        );
-        
-        // Proceed with logout if confirmed
-        if (shouldLogout == true) {
-          try {
-            // Sign out from Firebase Auth
-            await FirebaseAuth.instance.signOut();
-            
-            // Clear login status
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setBool('isLoggedIn', false);
-            
-            // Navigate back to login screen using MaterialPageRoute
-            // Replace the named route navigation with direct navigation
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => LoginSignupScreen()),
-              (Route<dynamic> route) => false,
-            );
-            
-            // Note: Don't show SnackBar after navigation as the context will be invalid
-            
-          } catch (e) {
-            // Show error message if logout fails
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to logout: ${e.toString()}')),
-            );
+  Widget _buildLogoutButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+      child: InkWell(
+        onTap: () async {
+          // Show confirmation dialog
+          final shouldLogout = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Logout'),
+                content: Text('Are you sure you want to logout?'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text('Logout', style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              );
+            },
+          );
+          
+          // Proceed with logout if confirmed
+          if (shouldLogout == true) {
+            try {
+              // Sign out from Firebase Auth
+              await FirebaseAuth.instance.signOut();
+              
+              // Clear login status
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isLoggedIn', false);
+              
+              // Navigate back to login screen using MaterialPageRoute
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => LoginSignupScreen()),
+                (Route<dynamic> route) => false,
+              );
+              
+            } catch (e) {
+              // Show error message if logout fails
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to logout: ${e.toString()}')),
+              );
+            }
           }
-        }
-      },
-      child: Row(
-        children: [
-          Icon(Icons.logout, color: Colors.red[400], size: 20),
-          const SizedBox(width: 16),
-          Text(
-            'Logout',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.red[400],
+        },
+        child: Row(
+          children: [
+            Icon(Icons.logout, color: Colors.red[400], size: 20),
+            const SizedBox(width: 16),
+            Text(
+              'Logout',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.red[400],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   Widget _buildSettingItem(String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),

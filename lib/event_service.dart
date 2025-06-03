@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:evoria_app/event.dart';
+import 'vendor.dart';
 
 class Vendor {
   final String id;
@@ -76,27 +77,6 @@ class EventService {
       return vendors;
     } catch (e) {
       print('Error fetching vendors by category: $e');
-      return [];
-    }
-  }
-
-  // Get featured vendors
-  Future<List<Vendor>> getFeaturedVendors() async {
-    try {
-      QuerySnapshot vendorSnapshot = await _vendorsCollection
-          .where('isFeatured', isEqualTo: true)
-          .get();
-      
-      List<Vendor> vendors = [];
-      for (QueryDocumentSnapshot doc in vendorSnapshot.docs) {
-        Map<String, dynamic> vendorData = doc.data() as Map<String, dynamic>;
-        vendorData['id'] = doc.id;
-        vendors.add(Vendor.fromMap(vendorData));
-      }
-      
-      return vendors;
-    } catch (e) {
-      print('Error fetching featured vendors: $e');
       return [];
     }
   }

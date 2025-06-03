@@ -2,15 +2,10 @@ import 'package:flutter/material.dart';
 import '../event_card.dart';
 import '../mock_data.dart';
 import 'event.dart';
-import 'app_theme.dart';
 import 'profile_page.dart';
 import 'calendar_screen.dart';
 import 'explore_screen.dart';
-import 'vendor.dart';
-import 'vendor_detail_screen.dart';
-import 'event_details_screen.dart';
 import 'user_profile.dart';
-import 'event.dart';
 import 'vendors_screen.dart'; 
 import "EventCreationScreen.dart";
 

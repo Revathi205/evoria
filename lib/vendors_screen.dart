@@ -2,6 +2,8 @@ import 'package:evoria_app/vendor_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:evoria_app/vendor.dart';
 import 'package:evoria_app/event_service.dart' hide Vendor;
+import 'package:evoria_app/mock_data.dart' as mock_data;
+
 
 class VendorsScreen extends StatefulWidget {
   final String? eventId; // Optional event ID to filter vendors or add vendors to event
@@ -27,13 +29,31 @@ class _VendorsScreenState extends State<VendorsScreen> {
   
   bool _isLoading = true;
   String _selectedCategory = 'All';
-  final List<String> _categories = ['All', 'Venue', 'Catering', 'Photography', 'Florist', 'Decor', 'Music'];
+  final List<String> _categories = ['All', 'Venue', 'Catering', 'Photography', 'Florist', 'Entertainment', 'Decor', 'Planning'];
 
   @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
+void initState() {
+  super.initState();
+  _loadMockData();
+}
+
+void _loadMockData() {
+  setState(() {
+    _isLoading = true;
+  });
+  
+  // Load mock data
+  _allVendors = mock_data.MockData.vendors; // Use the correct variable name from mock_data.dart
+  _filteredVendors = List.from(_allVendors);
+  print('Total vendors loaded: ${_allVendors.length}');
+  
+  setState(() {
+    _isLoading = false;
+  });
+}
+
+// Update your _refreshData method to use mock data too:
+// (Removed duplicate _refreshData)
 
   @override
   void dispose() {
@@ -107,94 +127,59 @@ class _VendorsScreenState extends State<VendorsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCF7FA),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            _buildHeader(),
-            
-            // Search Bar
-            _buildSearchBar(),
-            
-            // Category Filter
-            _buildCategoryFilter(),
-            
-            // Vendors List
-            Expanded(
-              child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF00861)),
-                    ),
-                  )
-                : _filteredVendors.isEmpty
-                    ? _buildEmptyState()
-                    : RefreshIndicator(
-                        onRefresh: _refreshData,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _filteredVendors.length,
-                          itemBuilder: (context, index) {
-                            final vendor = _filteredVendors[index];
-                            return _buildVendorCard(context, vendor);
-                          },
-                        ),
-                      ),
-            ),
-          ],
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(
+          'Vendors',
+          style: TextStyle(
+            fontFamily: 'Spline Sans',
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isLoading ? Icons.refresh : Icons.refresh_outlined,
+            ),
+            onPressed: _refreshData,
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Column(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Icon(
-                Icons.arrow_back,
-                size: 24,
-                color: Color(0xFF1C0D12),
-              ),
-            ),
-          ),
-          const Expanded(
-            child: Text(
-              'Vendors',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Spline Sans',
-                fontWeight: FontWeight.w700,
-                fontSize: 24,
-                color: Color(0xFF1C0D12),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: _refreshData,
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Icon(
-                _isLoading ? Icons.refresh : Icons.refresh_outlined,
-                size: 24,
-                color: const Color(0xFF1C0D12),
-              ),
-            ),
+          // Search Bar
+          _buildSearchBar(),
+          
+          // Category Filter
+          _buildCategoryFilter(),
+          
+          const SizedBox(height: 16),
+          
+          // Vendors List
+          Expanded(
+            child: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF00861)),
+                  ),
+                )
+              : _filteredVendors.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      onRefresh: _refreshData,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: _filteredVendors.length,
+                        itemBuilder: (context, index) {
+                          final vendor = _filteredVendors[index];
+                          return _buildVendorCard(vendor);
+                        },
+                      ),
+                    ),
           ),
         ],
       ),
@@ -203,7 +188,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16.0),
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
@@ -217,11 +202,11 @@ class _VendorsScreenState extends State<VendorsScreen> {
             color: Color(0xFF666666),
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(25),
             borderSide: BorderSide.none,
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Colors.grey[100],
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
         ),
         style: const TextStyle(
@@ -242,31 +227,29 @@ class _VendorsScreenState extends State<VendorsScreen> {
         itemCount: _categories.length,
         itemBuilder: (context, index) {
           final category = _categories[index];
-          final isSelected = category == _selectedCategory;
-          
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: FilterChip(
-              label: Text(
-                category,
-                style: TextStyle(
-                  fontFamily: 'Spline Sans',
-                  color: isSelected ? Colors.white : const Color(0xFF1C0D12),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
-              ),
-              selected: isSelected,
-              onSelected: (_) => _filterByCategory(category),
-              backgroundColor: Colors.white,
-              selectedColor: const Color(0xFFF00861),
-              checkmarkColor: Colors.white,
-              side: BorderSide(
-                color: isSelected ? const Color(0xFFF00861) : const Color(0xFFE0E0E0),
-              ),
-            ),
-          );
+          return _buildCategoryChip(category);
         },
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String category) {
+    final isSelected = _selectedCategory == category;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        label: Text(
+          category,
+          style: TextStyle(
+            fontFamily: 'Spline Sans',
+            color: isSelected ? Colors.white : Colors.black,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        selected: isSelected,
+        onSelected: (_) => _filterByCategory(category),
+        selectedColor: const Color(0xFFF00861),
+        backgroundColor: Colors.grey[200],
       ),
     );
   }
@@ -277,8 +260,8 @@ class _VendorsScreenState extends State<VendorsScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.store_outlined,
-            size: 64,
+            Icons.store,
+            size: 80,
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
@@ -287,7 +270,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
             style: TextStyle(
               fontFamily: 'Spline Sans',
               fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold,
               color: Colors.grey[600],
             ),
           ),
@@ -300,21 +283,43 @@ class _VendorsScreenState extends State<VendorsScreen> {
               color: Colors.grey[500],
             ),
           ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _selectedCategory = 'All';
+                _searchController.clear();
+                _filteredVendors = List.from(_allVendors);
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF00861),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Reset Filters',
+              style: TextStyle(
+                fontFamily: 'Spline Sans',
+                color: Colors.white,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildVendorCard(BuildContext context, Vendor vendor) {
+  Widget _buildVendorCard(Vendor vendor) {
     final isInEvent = _isVendorInEvent(vendor);
     
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: Colors.white,
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -322,7 +327,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
             MaterialPageRoute(
               builder: (context) => VendorDetailsScreen(
                 vendorData: vendor,
-                eventId: widget.eventId, // Pass eventId if available
+                eventId: widget.eventId,
               ),
             ),
           ).then((_) {
@@ -331,214 +336,203 @@ class _VendorsScreenState extends State<VendorsScreen> {
           });
         },
         borderRadius: BorderRadius.circular(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Vendor Image
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Container(
-                height: 150,
-                width: double.infinity,
-                color: Colors.grey[300],
-                child: Stack(
-                  children: [
-                    // Image or placeholder
-                    vendor.imageUrl.isNotEmpty && vendor.imageUrl.startsWith('assets')
-                      ? Image.asset(
-                          vendor.imageUrl,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        )
-                      : Center(
-                          child: Icon(
-                            _getCategoryIcon(vendor.category),
-                            size: 48,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                    
-                    // Featured badge
-                    if (vendor.isFeatured)
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF00861),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Text(
-                            'Featured',
-                            style: TextStyle(
-                              fontFamily: 'Spline Sans',
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    
-                    // Event status badge
-                    if (widget.eventId != null)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: isInEvent ? Colors.green : Colors.grey.withOpacity(0.8),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            isInEvent ? 'Added' : 'Available',
-                            style: const TextStyle(
-                              fontFamily: 'Spline Sans',
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Vendor Image/Icon with Status Badge
+              Stack(
                 children: [
-                  // Vendor Name and Rating
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          vendor.name,
-                          style: const TextStyle(
-                            fontFamily: 'Spline Sans',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1C0D12),
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey[200],
+                    ),
+                    child: vendor.imageUrl.isNotEmpty && vendor.imageUrl.startsWith('assets')
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              vendor.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  _getCategoryIcon(vendor.category),
+                                  size: 30,
+                                  color: Colors.grey[600],
+                                );
+                              },
+                            ),
+                          )
+                        : Icon(
+                            _getCategoryIcon(vendor.category),
+                            size: 30,
+                            color: Colors.grey[600],
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (vendor.rating > 0)
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              vendor.rating.toString(),
-                              style: const TextStyle(
-                                fontFamily: 'Spline Sans',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                                color: Color(0xFF1C0D12),
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
                   ),
                   
-                  const SizedBox(height: 4),
-                  
-                  // Category and Location
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  // Featured badge
+                  if (vendor.isFeatured)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF00861).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          color: const Color(0xFFF00861),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          vendor.category,
-                          style: const TextStyle(
+                        child: const Text(
+                          'F',
+                          style: TextStyle(
                             fontFamily: 'Spline Sans',
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFF00861),
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                      if (vendor.location.isNotEmpty) ...[
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.location_on,
-                          size: 12,
-                          color: Colors.grey[600],
-                        ),
-                        const SizedBox(width: 2),
+                    ),
+                ],
+              ),
+
+              const SizedBox(width: 16),
+
+              // Vendor Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Name and Event Status
+                    Row(
+                      children: [
                         Expanded(
                           child: Text(
-                            vendor.location,
-                            style: TextStyle(
+                            vendor.name,
+                            style: const TextStyle(
                               fontFamily: 'Spline Sans',
-                              fontSize: 10,
-                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (widget.eventId != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: isInEvent ? Colors.green : Colors.grey.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              isInEvent ? 'Added' : 'Available',
+                              style: TextStyle(
+                                fontFamily: 'Spline Sans',
+                                color: isInEvent ? Colors.white : Colors.grey[700],
+                                fontSize: 8,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                       ],
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 8),
-                  
-                  // Description
-                  Text(
-                    vendor.description,
-                    style: TextStyle(
-                      fontFamily: 'Spline Sans',
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                      height: 1.3,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  
-                  // Price Range (if available)
-                  if (vendor.priceRange != null && vendor.priceRange!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    
+                    const SizedBox(height: 4),
+                    
+                    // Category and Location
                     Row(
                       children: [
-                        Icon(
-                          Icons.attach_money,
-                          size: 12,
-                          color: Colors.green[600],
-                        ),
-                        Text(
-                          vendor.priceRange!,
-                          style: TextStyle(
-                            fontFamily: 'Spline Sans',
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.green[600],
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF00861).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            vendor.category,
+                            style: const TextStyle(
+                              fontFamily: 'Spline Sans',
+                              fontSize: 12,
+                              color: Color(0xFFF00861),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
+                        if (vendor.location.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.location_on,
+                            size: 14,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 2),
+                          Expanded(
+                            child: Text(
+                              vendor.location,
+                              style: TextStyle(
+                                fontFamily: 'Spline Sans',
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 4),
+                    
+                    // Rating and Price
+                    Row(
+                      children: [
+                        if (vendor.rating > 0) ...[
+                          const Icon(
+                            Icons.star,
+                            size: 16,
+                            color: Colors.amber,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            vendor.rating.toString(),
+                            style: const TextStyle(
+                              fontFamily: 'Spline Sans',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                        if (vendor.rating > 0 && vendor.priceRange != null)
+                          const SizedBox(width: 16),
+                        if (vendor.priceRange != null && vendor.priceRange!.isNotEmpty)
+                          Text(
+                            vendor.priceRange!,
+                            style: TextStyle(
+                              fontFamily: 'Spline Sans',
+                              fontSize: 12,
+                              color: Colors.green.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                       ],
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
+
+              // Arrow Icon
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey[400],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -554,11 +548,20 @@ class _VendorsScreenState extends State<VendorsScreen> {
         return Icons.location_city;
       case 'photography':
         return Icons.camera_alt;
+      case 'entertainment':
       case 'music':
         return Icons.music_note;
       case 'decor':
       case 'decoration':
         return Icons.format_paint;
+      case 'planning':
+        return Icons.event_note;
+      case 'transportation':
+        return Icons.directions_car;
+      case 'bar services':
+        return Icons.local_bar;
+      case 'lighting':
+        return Icons.lightbulb;
       default:
         return Icons.store;
     }

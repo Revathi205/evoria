@@ -1,11 +1,12 @@
 import 'package:evoria_app/event.dart';
 import 'package:evoria_app/vendor.dart' as vendor_lib;
 import 'package:evoria_app/event_service.dart';
+// Fixed import - using the correct class name from your vendor_detail_screen.dart
 import 'package:evoria_app/vendor_detail_screen.dart';
 import 'package:evoria_app/payment_details_page.dart';
+import 'package:evoria_app/guest.dart'; // Add this import
 import 'package:flutter/material.dart';
 import 'dart:async';
-// Removed duplicate vendor.dart import
 import 'package:evoria_app/vendors_screen.dart';
 
 class EventOverviewPage extends StatefulWidget {
@@ -99,39 +100,39 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     await _loadEventVendors();
   }
 
-  // Method to navigate to vendor detail screen
+  // Fixed navigation method - using correct class name and parameters
   void _navigateToVendorDetail(vendor_lib.Vendor vendor) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder:
-            (context) => VendorDetailsScreen(
-              vendorData: vendor,
-              eventId: _currentEvent.id, // Pass the event ID
-            ),
+        builder: (context) => VendorDetailsScreen(
+          vendorData: vendor, // Using 'vendorData' parameter as defined in VendorDetailsScreen
+          eventId: _currentEvent.id, // Pass the event ID for add/remove functionality
+        ),
       ),
-    ).then((_) {
-      // Refresh the vendor list when returning from vendor detail screen
-      _loadEventVendors();
-    });
+    ).then((_) => _loadEventVendors()); // Refresh after returning
   }
 
-  // Method to navigate to add new vendor
-  void _navigateToAddVendor() {
+  // Add this method to navigate to guest page
+  void _navigateToGuestPage() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder:
-            (context) => VendorDetailsScreen(
-              vendorData: _createEmptyVendor(),
-              eventId: _currentEvent.id,
-            ),
+        builder: (context) => GuestPage(),
       ),
-    ).then((_) {
-      _loadEventVendors();
-    });
+    );
   }
 
+  // Add this method to navigate to payment page
+  void _navigateToPaymentPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentDetailsPage(),
+      ),
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,22 +177,12 @@ class _EventOverviewPageState extends State<EventOverviewPage>
           ),
         ),
       ),
-      // Floating Action Button for Payment (only if budget tracker is enabled)
-      floatingActionButton:
-          _currentEvent.enableBudgetTracker
-              ? FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentDetailsPage(),
-                    ),
-                  );
-                },
-                backgroundColor: const Color(0xFFF00861),
-                child: const Icon(Icons.payment, color: Color(0xFFFCF7FA)),
-              )
-              : null,
+      // Updated Floating Action Button - Always visible and navigates to payment page
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToPaymentPage,
+        backgroundColor: const Color(0xFFF00861),
+        child: const Icon(Icons.payment, color: Color(0xFFFCF7FA)),
+      ),
     );
   }
 
@@ -491,7 +482,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
               ),
               // SINGLE Add Vendor button - this is the only one we keep
               GestureDetector(
-                onTap: _navigateToAddVendor,
+                onTap: () => _navigateToVendorDetail(_createEmptyVendor()),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -546,7 +537,6 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                   ),
                 ),
                 const SizedBox(height: 8),
-                // REMOVED - This duplicate "Add Your First Vendor" button
                 Text(
                   'Use the "Add Vendor" button above to get started',
                   style: TextStyle(
@@ -671,7 +661,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     );
   }
 
-  // UPDATED - Removed Add Vendor from Quick Actions
+  // UPDATED - Changed navigation to guest page
   Widget _buildQuickActionsSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -679,12 +669,8 @@ class _EventOverviewPageState extends State<EventOverviewPage>
         children: [
           Expanded(
             child: _buildActionButton('Invite Guests', Icons.person_add, () {
-              // Navigate to invite guests page
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Invite guests functionality coming soon!'),
-                ),
-              );
+              // Navigate to guest page
+              _navigateToGuestPage();
             }),
           ),
           const SizedBox(width: 12),
@@ -787,13 +773,13 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     );
   }
 
-  // Update the _buildCategoriesGrid method in your EventOverviewPage
+  // UPDATED - Removed navigation to VendorsScreen from categories
   Widget _buildCategoriesGrid() {
     final categories = [
       {'name': 'Catering', 'icon': Icons.restaurant},
       {'name': 'Photography', 'icon': Icons.camera_alt},
       {'name': 'Decoration', 'icon': Icons.celebration},
-      {'name': 'All Vendors', 'icon': Icons.store}, // Updated this item
+      {'name': 'All Vendors', 'icon': Icons.store},
     ];
 
     return Container(
@@ -825,37 +811,13 @@ class _EventOverviewPageState extends State<EventOverviewPage>
               final category = categories[index];
               return GestureDetector(
                 onTap: () {
-                  if (category['name'] == 'All Vendors') {
-                    // Navigate to VendorsScreen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => VendorsScreen(
-                              eventId: _currentEvent.id,
-                              showAddToEventOption: true,
-                            ),
-                      ),
-                    ).then((_) {
-                      // Refresh vendor list when returning
-                      _loadEventVendors();
-                    });
-                  } else {
-                    // Navigate to VendorsScreen with category filter
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => VendorsScreen(
-                              eventId: _currentEvent.id,
-                              showAddToEventOption: true,
-                            ),
-                      ),
-                    ).then((_) {
-                      // Refresh vendor list when returning
-                      _loadEventVendors();
-                    });
-                  }
+                  // Show a coming soon message instead of navigating
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${category['name']} section coming soon!'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(16),
@@ -867,7 +829,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                         color: Colors.black.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 2),
-                      ),
+                        ),
                     ],
                   ),
                   child: Column(

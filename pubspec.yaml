@@ -83,7 +83,40 @@ flutter:
     - assets/cake.png.jpg
     - assets/catering.png.jpg
     - assets/decor.png.jpg
-    
+    - assets/band1.png
+    - assets/band2.png
+    - assets/band3.png  
+    - assets/band4.png
+    - assets/bar1.jpg
+    - assets/bar2.jpg
+    - assets/bar3.jpg
+    - assets/bar4.jpg
+    - assets/bubble.png
+    - assets/cater1.jpg
+    - assets/cater2.jpg
+    - assets/cater3.jpg
+    - assets/comedy.png
+    - assets/escape.png
+    - assets/golf.png
+    - assets/floral1.jpg
+    - assets/floral2.jpg
+    - assets/floral3.jpg
+    - assets/lights1.png
+    - assets/lights2.png
+    - assets/lights3.png  
+    - assets/lights4.png
+    - assets/trans1.png
+    - assets/trans2.png
+    - assets/trans3.png
+    - assets/trans4.png
+    - assets/retro.png
+    - assets/wedding.png
+    - assets/birthday.png
+    - assets/corporate.png
+    - assets/outdoor.png
+    - assets/party.png
+    - assets/elegant.png
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

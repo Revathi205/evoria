@@ -40,8 +40,6 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
     }
   }
 
-
-
   Future<void> _addVendorToEvent() async {
     if (widget.eventId == null) return;
 
@@ -146,6 +144,12 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
     }
   }
 
+  // Helper method to determine if we should show gradient banner
+  bool _shouldShowGradientBanner() {
+    // Always show gradient banner (no image files needed)
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,35 +158,51 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
     );
   }
 
-
   Widget _buildExistingVendorView() {
     return CustomScrollView(
       slivers: [
-        // App bar with vendor image
+        // App bar with vendor banner image
         SliverAppBar(
-          expandedHeight: 200.0,
+          expandedHeight: 250.0, // Increased height for better banner display
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
-            background: widget.vendorData.imageUrl.startsWith('assets')
-              ? Image.asset(
-                  widget.vendorData.imageUrl,
-                  fit: BoxFit.cover,
-                )
-              : _buildPlaceholderImage(),
+            background: _buildGradientBanner(),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              padding: const EdgeInsets.all(8),
+              child: const Icon(Icons.arrow_back, color: Colors.white),
+            ),
             onPressed: () => Navigator.pop(context),
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.favorite_border, color: Colors.white),
+              icon: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(8),
+                child: const Icon(Icons.favorite_border, color: Colors.white),
+              ),
               onPressed: () {},
             ),
             IconButton(
-              icon: const Icon(Icons.share, color: Colors.white),
+              icon: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(8),
+                child: const Icon(Icons.share, color: Colors.white),
+              ),
               onPressed: () {},
             ),
+            const SizedBox(width: 8),
           ],
         ),
         
@@ -508,27 +528,76 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
     );
   }
 
-  Widget _buildPlaceholderImage() {
+  Widget _buildGradientBanner() {
     return Container(
-      color: Colors.grey[300],
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              _getCategoryIcon(widget.vendorData.category),
-              size: 48,
-              color: Colors.grey[500],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.vendorData.category,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ],
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: _getCategoryGradientColors(widget.vendorData.category),
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.transparent,
+              Colors.black.withOpacity(0.2),
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                _getCategoryIcon(widget.vendorData.category),
+                size: 64,
+                color: Colors.white.withOpacity(0.9),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                widget.vendorData.category.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(0, 1),
+                      blurRadius: 3,
+                      color: Colors.black26,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  List<Color> _getCategoryGradientColors(String category) {
+    switch (category.toLowerCase()) {
+      case 'florist':
+        return [Colors.pink.shade400, Colors.pink.shade600];
+      case 'catering':
+        return [Colors.orange.shade400, Colors.orange.shade600];
+      case 'venue':
+        return [Colors.blue.shade400, Colors.blue.shade600];
+      case 'photography':
+        return [Colors.purple.shade400, Colors.purple.shade600];
+      case 'music':
+        return [Colors.indigo.shade400, Colors.indigo.shade600];
+      case 'decor':
+        return [Colors.teal.shade400, Colors.teal.shade600];
+      default:
+        return [Colors.grey.shade400, Colors.grey.shade600];
+    }
   }
 
   IconData _getCategoryIcon(String category) {
