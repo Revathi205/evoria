@@ -1,4 +1,4 @@
-
+import 'package:evoria_app/vendor_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:evoria_app/vendor.dart';
 import 'package:evoria_app/event_service.dart' hide Vendor;

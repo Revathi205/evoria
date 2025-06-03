@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 // Removed duplicate vendor.dart import
 import 'package:evoria_app/vendors_screen.dart';
+
 class EventOverviewPage extends StatefulWidget {
   final Event event;
   const EventOverviewPage({Key? key, required this.event}) : super(key: key);
@@ -15,7 +16,7 @@ class EventOverviewPage extends StatefulWidget {
   State<EventOverviewPage> createState() => _EventOverviewPageState();
 }
 
-class _EventOverviewPageState extends State<EventOverviewPage> 
+class _EventOverviewPageState extends State<EventOverviewPage>
     with RouteAware, WidgetsBindingObserver {
   final EventService _eventService = EventService();
   List<vendor_lib.Vendor> _eventVendors = [];
@@ -69,7 +70,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
 
   Future<void> _loadEventVendors() async {
     if (_isDisposed) return;
-    
+
     setState(() {
       _isLoadingVendors = true;
     });
@@ -103,10 +104,11 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VendorDetailsScreen(
-          vendorData: vendor,
-          eventId: _currentEvent.id, // Pass the event ID
-        ),
+        builder:
+            (context) => VendorDetailsScreen(
+              vendorData: vendor,
+              eventId: _currentEvent.id, // Pass the event ID
+            ),
       ),
     ).then((_) {
       // Refresh the vendor list when returning from vendor detail screen
@@ -119,10 +121,11 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VendorDetailsScreen(
-          vendorData: _createEmptyVendor(),
-          eventId: _currentEvent.id,
-        ),
+        builder:
+            (context) => VendorDetailsScreen(
+              vendorData: _createEmptyVendor(),
+              eventId: _currentEvent.id,
+            ),
       ),
     ).then((_) {
       _loadEventVendors();
@@ -142,31 +145,31 @@ class _EventOverviewPageState extends State<EventOverviewPage>
               children: [
                 // Header Section
                 _buildHeader(context),
-                
+
                 // Hero Image Section
                 _buildHeroSection(),
-                
+
                 // Tab Navigation
                 _buildTabNavigation(),
-                
+
                 // Event Details Section
                 _buildEventDetailsSection(),
-                
+
                 // Vendors Section
                 _buildVendorsSection(),
-                
+
                 // Timeline Section (if enabled)
                 if (_currentEvent.enableTodoChecklist) _buildTimelineSection(),
-                
+
                 // Quick Actions - REMOVED Add Vendor from here
                 _buildQuickActionsSection(),
-                
+
                 // Budget Section (if enabled)
                 if (_currentEvent.enableBudgetTracker) _buildBudgetSection(),
-                
+
                 // Categories Grid
                 _buildCategoriesGrid(),
-                
+
                 const SizedBox(height: 20),
               ],
             ),
@@ -174,21 +177,21 @@ class _EventOverviewPageState extends State<EventOverviewPage>
         ),
       ),
       // Floating Action Button for Payment (only if budget tracker is enabled)
-      floatingActionButton: _currentEvent.enableBudgetTracker ? FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PaymentDetailsPage(),
-            ),
-          );
-        },
-        backgroundColor: const Color(0xFFF00861),
-        child: const Icon(
-          Icons.payment,
-          color: Color(0xFFFCF7FA),
-        ),
-      ) : null,
+      floatingActionButton:
+          _currentEvent.enableBudgetTracker
+              ? FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentDetailsPage(),
+                    ),
+                  );
+                },
+                backgroundColor: const Color(0xFFF00861),
+                child: const Icon(Icons.payment, color: Color(0xFFFCF7FA)),
+              )
+              : null,
     );
   }
 
@@ -203,9 +206,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
             child: Container(
               width: 48,
               height: 48,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
               child: const Icon(
                 Icons.arrow_back,
                 size: 24,
@@ -231,9 +232,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
             child: Container(
               width: 48,
               height: 48,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
               child: Icon(
                 _isLoadingVendors ? Icons.refresh : Icons.refresh_outlined,
                 size: 24,
@@ -251,7 +250,10 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     Color eventColor = Color(4294502172); // Default yellow
     if (_currentEvent.colorHex != null && _currentEvent.colorHex!.isNotEmpty) {
       try {
-        eventColor = Color(int.parse(_currentEvent.colorHex!.substring(1), radix: 16) + 0xFF000000);
+        eventColor = Color(
+          int.parse(_currentEvent.colorHex!.substring(1), radix: 16) +
+              0xFF000000,
+        );
       } catch (e) {
         // Use default color if parsing fails
       }
@@ -285,11 +287,14 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _currentEvent.title.isNotEmpty ? _currentEvent.title : 'Untitled Event',
+                        _currentEvent.title.isNotEmpty
+                            ? _currentEvent.title
+                            : 'Untitled Event',
                         style: TextStyle(
                           fontFamily: 'Spline Sans',
                           fontWeight: FontWeight.w700,
-                          fontSize: MediaQuery.of(context).size.width < 400 ? 24 : 28,
+                          fontSize:
+                              MediaQuery.of(context).size.width < 400 ? 24 : 28,
                           height: 1.25,
                           color: Colors.white,
                         ),
@@ -321,30 +326,59 @@ class _EventOverviewPageState extends State<EventOverviewPage>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          _buildTabItem('Overview', true),
+          _buildTabItem('Overview', 0),
           const SizedBox(width: 16),
-          _buildTabItem('Vendors', false),
+          _buildTabItem('Vendors', 1),
           const SizedBox(width: 16),
-          _buildTabItem('Timeline', false),
+          _buildTabItem('Timeline', 2),
         ],
       ),
     );
   }
 
-  Widget _buildTabItem(String title, bool isActive) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isActive ? const Color(0xFFF00861) : Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontFamily: 'Spline Sans',
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-          color: isActive ? Colors.white : const Color(0xFF1C0D12),
+  Widget _buildSelectedSection() {
+    switch (_selectedTabIndex) {
+      case 1:
+        return _buildVendorsSection();
+      case 2:
+        return _buildTimelineSection();
+      case 0:
+      default:
+        return Column(
+          children: [
+            _buildEventDetailsSection(),
+            _buildQuickActionsSection(),
+            _buildCategoriesGrid(),
+            _buildBudgetSection(),
+          ],
+        );
+    }
+  }
+
+  int _selectedTabIndex = 0;
+
+  Widget _buildTabItem(String title, int index) {
+    bool isActive = _selectedTabIndex == index;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedTabIndex = index;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFFF00861) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'Spline Sans',
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: isActive ? Colors.white : const Color(0xFF1C0D12),
+          ),
         ),
       ),
     );
@@ -381,7 +415,10 @@ class _EventOverviewPageState extends State<EventOverviewPage>
           _buildDetailRow('Date', _formatDate(_currentEvent.date)),
           _buildDetailRow('Time', _currentEvent.time ?? 'Not set'),
           _buildDetailRow('Location', _currentEvent.location),
-          _buildDetailRow('Guests', '${_currentEvent.guestCount ?? 0} expected'),
+          _buildDetailRow(
+            'Guests',
+            '${_currentEvent.guestCount ?? 0} expected',
+          ),
         ],
       ),
     );
@@ -456,7 +493,10 @@ class _EventOverviewPageState extends State<EventOverviewPage>
               GestureDetector(
                 onTap: _navigateToAddVendor,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF00861),
                     borderRadius: BorderRadius.circular(16),
@@ -464,11 +504,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.add,
-                        size: 16,
-                        color: Colors.white,
-                      ),
+                      Icon(Icons.add, size: 16, color: Colors.white),
                       SizedBox(width: 4),
                       Text(
                         'Add Vendor',
@@ -489,7 +525,9 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF00861)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFFF00861),
+                    ),
                   ),
                 ),
             ],
@@ -522,7 +560,10 @@ class _EventOverviewPageState extends State<EventOverviewPage>
             )
           else
             Column(
-              children: _eventVendors.map((vendor) => _buildVendorItem(vendor)).toList(),
+              children:
+                  _eventVendors
+                      .map((vendor) => _buildVendorItem(vendor))
+                      .toList(),
             ),
         ],
       ),
@@ -549,11 +590,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
                 color: const Color(0xFFF00861),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.business,
-                color: Colors.white,
-                size: 20,
-              ),
+              child: const Icon(Icons.business, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -641,33 +678,23 @@ class _EventOverviewPageState extends State<EventOverviewPage>
       child: Row(
         children: [
           Expanded(
-            child: _buildActionButton(
-              'Invite Guests',
-              Icons.person_add,
-              () {
-                // Navigate to invite guests page
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Invite guests functionality coming soon!'),
-                  ),
-                );
-              },
-            ),
+            child: _buildActionButton('Invite Guests', Icons.person_add, () {
+              // Navigate to invite guests page
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Invite guests functionality coming soon!'),
+                ),
+              );
+            }),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: _buildActionButton(
-              'View Timeline',
-              Icons.timeline,
-              () {
-                // Navigate to timeline page
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Timeline view coming soon!'),
-                  ),
-                );
-              },
-            ),
+            child: _buildActionButton('View Timeline', Icons.timeline, () {
+              // Navigate to timeline page
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Timeline view coming soon!')),
+              );
+            }),
           ),
         ],
       ),
@@ -701,11 +728,7 @@ class _EventOverviewPageState extends State<EventOverviewPage>
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              size: 24,
-              color: const Color(0xFFF00861),
-            ),
+            Icon(icon, size: 24, color: const Color(0xFFF00861)),
             const SizedBox(height: 8),
             Text(
               title,
@@ -764,115 +787,117 @@ class _EventOverviewPageState extends State<EventOverviewPage>
     );
   }
 
-// Update the _buildCategoriesGrid method in your EventOverviewPage
-Widget _buildCategoriesGrid() {
-  final categories = [
-    {'name': 'Catering', 'icon': Icons.restaurant},
-    {'name': 'Photography', 'icon': Icons.camera_alt},
-    {'name': 'Decoration', 'icon': Icons.celebration},
-    {'name': 'All Vendors', 'icon': Icons.store}, // Updated this item
-  ];
+  // Update the _buildCategoriesGrid method in your EventOverviewPage
+  Widget _buildCategoriesGrid() {
+    final categories = [
+      {'name': 'Catering', 'icon': Icons.restaurant},
+      {'name': 'Photography', 'icon': Icons.camera_alt},
+      {'name': 'Decoration', 'icon': Icons.celebration},
+      {'name': 'All Vendors', 'icon': Icons.store}, // Updated this item
+    ];
 
-  return Container(
-    margin: const EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Categories',
-          style: TextStyle(
-            fontFamily: 'Spline Sans',
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: Color(0xFF1C0D12),
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Categories',
+            style: TextStyle(
+              fontFamily: 'Spline Sans',
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+              color: Color(0xFF1C0D12),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.5,
+          const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.5,
+            ),
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return GestureDetector(
+                onTap: () {
+                  if (category['name'] == 'All Vendors') {
+                    // Navigate to VendorsScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => VendorsScreen(
+                              eventId: _currentEvent.id,
+                              showAddToEventOption: true,
+                            ),
+                      ),
+                    ).then((_) {
+                      // Refresh vendor list when returning
+                      _loadEventVendors();
+                    });
+                  } else {
+                    // Navigate to VendorsScreen with category filter
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => VendorsScreen(
+                              eventId: _currentEvent.id,
+                              showAddToEventOption: true,
+                            ),
+                      ),
+                    ).then((_) {
+                      // Refresh vendor list when returning
+                      _loadEventVendors();
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        category['icon'] as IconData,
+                        size: 32,
+                        color: const Color(0xFFF00861),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        category['name'] as String,
+                        style: const TextStyle(
+                          fontFamily: 'Spline Sans',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Color(0xFF1C0D12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
-          itemCount: categories.length,
-          itemBuilder: (context, index) {
-            final category = categories[index];
-            return GestureDetector(
-              onTap: () {
-                if (category['name'] == 'All Vendors') {
-                  // Navigate to VendorsScreen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VendorsScreen(
-                        eventId: _currentEvent.id,
-                        showAddToEventOption: true,
-                      ),
-                    ),
-                  ).then((_) {
-                    // Refresh vendor list when returning
-                    _loadEventVendors();
-                  });
-                } else {
-                  // Navigate to VendorsScreen with category filter
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VendorsScreen(
-                        eventId: _currentEvent.id,
-                        showAddToEventOption: true,
-                      ),
-                    ),
-                  ).then((_) {
-                    // Refresh vendor list when returning
-                    _loadEventVendors();
-                  });
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      category['icon'] as IconData,
-                      size: 32,
-                      color: const Color(0xFFF00861),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      category['name'] as String,
-                      style: const TextStyle(
-                        fontFamily: 'Spline Sans',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: Color(0xFF1C0D12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Not set';
