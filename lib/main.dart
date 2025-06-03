@@ -53,6 +53,11 @@ class MyApp extends StatelessWidget {
           imageUrl: 'https://example.com/event1.jpg',
           description: 'My birthday celebration',
           category: 'Celebration',
+          theme: 'Classic',
+          enableRSVP: true,
+          enableBudgetTracker: false,
+          enableTodoChecklist: true,
+          createdAt: DateTime(2025, 5, 1),
         ),
         Event(
           id: '2',
@@ -63,6 +68,11 @@ class MyApp extends StatelessWidget {
           imageUrl: 'https://example.com/event2.jpg',
           description: 'Anniversary celebration',
           category: 'Anniversary',
+          theme: 'Romantic',
+          enableRSVP: true,
+          enableBudgetTracker: true,
+          enableTodoChecklist: true,
+          createdAt: DateTime(2025, 6, 1),
         ),
       ],
       savedThemes: [

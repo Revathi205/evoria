@@ -1,3 +1,4 @@
+import 'package:evoria_app/event_overview_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'event.dart';
@@ -775,35 +776,43 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
     });
 
     try {
-  final event = Event (
-    id: '', // You can optionally set this later from Firestore
-    title: _eventNameController.text.trim(),
-    description: _eventType,
-    time: _dateTimeController.text.trim(),
-    imageUrl: '', // Placeholder for now
-    date: (_selectedDateTime ?? DateTime.now()).toIso8601String(),
-    location: _locationController.text.trim(),
-    theme: _selectedTheme,
-    enableRSVP: _enableRSVP,
-    enableBudgetTracker: _enableBudgetTracker,
-    enableTodoChecklist: _enableTodoChecklist,
-    createdAt: DateTime.now(),
-  );
+      final event = Event(
+        id: '', // Firestore will generate this
+        title: _eventNameController.text.trim(),
+        description: _eventType,
+        time: _dateTimeController.text.trim(),
+        imageUrl: '', // Placeholder for now
+        date: (_selectedDateTime ?? DateTime.now()).toIso8601String(),
+        location: _locationController.text.trim(),
+        theme: _selectedTheme,
+        enableRSVP: _enableRSVP,
+        enableBudgetTracker: _enableBudgetTracker,
+        enableTodoChecklist: _enableTodoChecklist,
+        createdAt: DateTime.now(),
+      );
 
-  final eventId = await FirebaseService.createEvent(event);
+      // Save to Firebase and get the event ID
+      final eventId = await FirebaseService.createEvent(event);
 
-  _showSuccessMessage('Event created successfully!');
-  
-  // Navigate back or to event details
-  Navigator.pop(context, eventId);
+      _showSuccessMessage('Event created successfully!');
 
-} catch (e) {
-  print("Error creating event: $e");
-  _showErrorMessage('Failed to create event: ${e.toString()}');
-} finally {
-  setState(() {
-    _isCreating = false;
-  });
-}
+      // Optionally, fetch the event from Firebase if you want the latest data (with ID)
+      // final createdEvent = await FirebaseService.getEventById(eventId);
+
+      // Navigate to EventOverviewPage and pass the event (or eventId)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EventOverviewPage(event: event),
+        ),
+      );
+    } catch (e) {
+      print("Error creating event: $e");
+      _showErrorMessage('Failed to create event: ${e.toString()}');
+    } finally {
+      setState(() {
+        _isCreating = false;
+      });
+    }
   }
 }

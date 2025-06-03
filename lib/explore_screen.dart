@@ -180,7 +180,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                (event.description ?? '').toLowerCase().contains(searchQuery) ||
                event.location.toLowerCase().contains(searchQuery) ||
                event.category.toLowerCase().contains(searchQuery) ||
-               event.tags.any((tag) => tag.toLowerCase().contains(searchQuery));
+               (event.tags?.any((tag) => tag.toLowerCase().contains(searchQuery)) ?? false);
       }
       
       return true;

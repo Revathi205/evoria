@@ -1,186 +1,267 @@
+import 'package:flutter/material.dart';
+
 class Event {
   final String id;
+  final String name;
+  final String? venue; // Add if needed
+  final int? expectedGuests; // Add if needed
+  final double? budget; // Add if needed
+  final DateTime? eventDate; // Add if needed
+  final TimeOfDay? eventTime; // Add if needed
   final String title;
-  final String? description;
+  final String description;
+  final String time;
   final String imageUrl;
   final String date;
-  final String time;
+  final String dateTime; // Added to match stored data
   final String location;
-  final String category;
-  final double? price;
-  final int? attendees;
-  final List<String> tags;
-  final List<String> vendors;
-  // New fields for event creation
   final String theme;
-  final String colorHex;
+  final String? notes; // Added to match stored data
+  final String category; // Added to match stored data
+  final String type; // Added to match stored data
+  final int? color; // Added to match stored data (color as number)
+  final String? colorHex; // Added to match stored data
+  final double? price; // Added to match stored data
+  final List<String>? tags; // Added to match stored data
+  final List<String>? attendees; // Added to match stored data
+  final List<String>? vendors; // Added to match stored data
   final bool enableRSVP;
   final bool enableBudgetTracker;
   final bool enableTodoChecklist;
   final DateTime createdAt;
-  final DateTime updatedAt;
-  // Additional fields that were missing
-  final String name;
-  final String type;
-  final DateTime dateTime;
-  final String notes;
-  final int color;
+  final DateTime? updatedAt; // Added to match stored data
 
   Event({
     required this.id,
+    required this.name,
+    this.venue,
+    this.expectedGuests,
+    this.budget,
+    this.eventDate,
+    this.eventTime,
     required this.title,
-    String? description,
+    required this.description,
+    required this.time,
     required this.imageUrl,
     required this.date,
-    required this.time,
+    String? dateTime,
     required this.location,
+    required this.theme,
+    this.notes,
     String? category,
-    this.price,
-    this.attendees,
-    this.tags = const [],
-    this.vendors = const [],
-    this.theme = 'Classic',
-    this.colorHex = '#F8E71C',
-    this.enableRSVP = false,
-    this.enableBudgetTracker = false,
-    this.enableTodoChecklist = false,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    // Additional required fields
-    String? name,
     String? type,
-    DateTime? dateTime,
-    String? notes,
-    int? color,
-  }) : 
-    this.description = description ?? '',
-    this.category = category ?? 'General',
-    this.createdAt = createdAt ?? DateTime.now(),
-    this.updatedAt = updatedAt ?? DateTime.now(),
-    this.name = name ?? title,
-    this.type = type ?? category ?? 'General',
-    this.dateTime = dateTime ?? DateTime.now(),
-    this.notes = notes ?? description ?? '',
-    this.color = color ?? 0xFFF8E71C;
+    this.color,
+    this.colorHex,
+    this.price,
+    this.tags,
+    this.attendees,
+    this.vendors,
+    required this.enableRSVP,
+    required this.enableBudgetTracker,
+    required this.enableTodoChecklist,
+    required this.createdAt,
+    this.updatedAt,
+  }) : dateTime = dateTime ?? date,
+       category = category ?? 'General',
+       type = type ?? 'General';
 
   // Convert Event to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'title': title,
       'name': name,
+      'venue': venue,
+      'expectedGuests': expectedGuests,
+      'budget': budget,
+      'eventDate': eventDate?.toIso8601String(),
+      'eventTime': eventTime != null ? '${eventTime!.hour}:${eventTime!.minute}' : null,
+      'title': title,
       'description': description,
+      'time': time,
       'imageUrl': imageUrl,
       'date': date,
-      'time': time,
+      'dateTime': dateTime,
       'location': location,
+      'theme': theme,
+      'notes': notes,
       'category': category,
       'type': type,
-      'price': price,
-      'attendees': attendees,
-      'tags': tags,
-      'vendors': vendors,
-      'theme': theme,
-      'colorHex': colorHex,
       'color': color,
+      'colorHex': colorHex,
+      'price': price,
+      'tags': tags,
+      'attendees': attendees,
+      'vendors': vendors,
       'enableRSVP': enableRSVP,
       'enableBudgetTracker': enableBudgetTracker,
       'enableTodoChecklist': enableTodoChecklist,
       'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      'dateTime': dateTime.toIso8601String(),
-      'notes': notes,
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 
-  // Create Event from Firestore document
+  // Create Event from Firestore Map
   factory Event.fromMap(Map<String, dynamic> map) {
     return Event(
       id: map['id'] ?? '',
-      title: map['title'] ?? '',
-      name: map['name'] ?? map['title'] ?? '',
-      description: map['description'],
+      name: map['name'] ?? '',
+      venue: map['venue'],
+      expectedGuests: map['expectedGuests'],
+      budget: map['budget'] != null ? double.tryParse(map['budget'].toString()) : null,
+      eventDate: map['eventDate'] != null ? DateTime.parse(map['eventDate']) : null,
+      eventTime: map['eventTime'] != null ? TimeOfDay(
+        hour: int.parse(map['eventTime'].split(':')[0]),
+        minute: int.parse(map['eventTime'].split(':')[1]),
+      ) : null,
+      title: map['title'] ?? map['name'] ?? '',
+      description: map['description'] ?? '',
+      time: map['time'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
       date: map['date'] ?? '',
-      time: map['time'] ?? '',
+      dateTime: map['dateTime'] ?? map['date'] ?? '',
       location: map['location'] ?? '',
-      category: map['category'],
-      type: map['type'] ?? map['category'] ?? 'General',
-      price: map['price']?.toDouble(),
-      attendees: map['attendees']?.toInt(),
-      tags: List<String>.from(map['tags'] ?? []),
-      vendors: List<String>.from(map['vendors'] ?? []),
       theme: map['theme'] ?? 'Classic',
-      colorHex: map['colorHex'] ?? '#F8E71C',
-      color: map['color'] ?? 0xFFF8E71C,
+      notes: map['notes'],
+      category: map['category'] ?? 'General',
+      type: map['type'] ?? 'General',
+      color: map['color'],
+      colorHex: map['colorHex'],
+      price: map['price']?.toDouble(),
+      tags: map['tags'] != null ? List<String>.from(map['tags']) : null,
+      attendees: map['attendees'] != null ? List<String>.from(map['attendees']) : null,
+      vendors: map['vendors'] != null ? List<String>.from(map['vendors']) : null,
       enableRSVP: map['enableRSVP'] ?? false,
       enableBudgetTracker: map['enableBudgetTracker'] ?? false,
       enableTodoChecklist: map['enableTodoChecklist'] ?? false,
       createdAt: map['createdAt'] != null 
-          ? DateTime.parse(map['createdAt']) 
+          ? DateTime.parse(map['createdAt'])
           : DateTime.now(),
       updatedAt: map['updatedAt'] != null 
-          ? DateTime.parse(map['updatedAt']) 
-          : DateTime.now(),
-      dateTime: map['dateTime'] != null 
-          ? DateTime.parse(map['dateTime']) 
-          : DateTime.now(),
-      notes: map['notes'] ?? map['description'] ?? '',
+          ? DateTime.parse(map['updatedAt'])
+          : null,
     );
   }
 
-  // Helper method to copy event with new values
+  // Create a copy of the event with updated fields
   Event copyWith({
     String? id,
-    String? title,
     String? name,
+    String? venue,
+    int? expectedGuests,
+    double? budget,
+    DateTime? eventDate,
+    TimeOfDay? eventTime,
+    String? title,
     String? description,
+    String? time,
     String? imageUrl,
     String? date,
-    String? time,
+    String? dateTime,
     String? location,
+    String? theme,
+    String? notes,
     String? category,
     String? type,
-    double? price,
-    int? attendees,
-    List<String>? tags,
-    List<String>? vendors,
-    String? theme,
-    String? colorHex,
     int? color,
+    String? colorHex,
+    double? price,
+    List<String>? tags,
+    List<String>? attendees,
+    List<String>? vendors,
     bool? enableRSVP,
     bool? enableBudgetTracker,
     bool? enableTodoChecklist,
     DateTime? createdAt,
     DateTime? updatedAt,
-    DateTime? dateTime,
-    String? notes,
   }) {
     return Event(
       id: id ?? this.id,
-      title: title ?? this.title,
       name: name ?? this.name,
+      venue: venue ?? this.venue,
+      expectedGuests: expectedGuests ?? this.expectedGuests,
+      budget: budget ?? this.budget,
+      eventDate: eventDate ?? this.eventDate,
+      eventTime: eventTime ?? this.eventTime,
+      title: title ?? this.title,
       description: description ?? this.description,
+      time: time ?? this.time,
       imageUrl: imageUrl ?? this.imageUrl,
       date: date ?? this.date,
-      time: time ?? this.time,
+      dateTime: dateTime ?? this.dateTime,
       location: location ?? this.location,
+      theme: theme ?? this.theme,
+      notes: notes ?? this.notes,
       category: category ?? this.category,
       type: type ?? this.type,
-      price: price ?? this.price,
-      attendees: attendees ?? this.attendees,
-      tags: tags ?? this.tags,
-      vendors: vendors ?? this.vendors,
-      theme: theme ?? this.theme,
-      colorHex: colorHex ?? this.colorHex,
       color: color ?? this.color,
+      colorHex: colorHex ?? this.colorHex,
+      price: price ?? this.price,
+      tags: tags ?? this.tags,
+      attendees: attendees ?? this.attendees,
+      vendors: vendors ?? this.vendors,
       enableRSVP: enableRSVP ?? this.enableRSVP,
       enableBudgetTracker: enableBudgetTracker ?? this.enableBudgetTracker,
       enableTodoChecklist: enableTodoChecklist ?? this.enableTodoChecklist,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      dateTime: dateTime ?? this.dateTime,
-      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? DateTime.now(),
     );
+  }
+
+  // Utility methods
+  DateTime get eventDateTime {
+    try {
+      return DateTime.parse(dateTime);
+    } catch (e) {
+      return DateTime.now();
+    }
+  }
+
+  bool get isPastEvent {
+    return eventDateTime.isBefore(DateTime.now());
+  }
+
+  bool get isToday {
+    final now = DateTime.now();
+    final eventDate = eventDateTime;
+    return now.year == eventDate.year &&
+           now.month == eventDate.month &&
+           now.day == eventDate.day;
+  }
+
+  bool get isUpcoming {
+    return eventDateTime.isAfter(DateTime.now());
+  }
+
+  String get formattedDate {
+    final date = eventDateTime;
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String get formattedDateTime {
+    final date = eventDateTime;
+    return '${date.day}/${date.month}/${date.year} at ${time}';
+  }
+
+  int get attendeeCount => attendees?.length ?? 0;
+  int get vendorCount => vendors?.length ?? 0;
+  int get tagCount => tags?.length ?? 0;
+
+  bool hasTag(String tag) => tags?.contains(tag) ?? false;
+  bool hasAttendee(String attendeeId) => attendees?.contains(attendeeId) ?? false;
+  bool hasVendor(String vendorId) => vendors?.contains(vendorId) ?? false;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Event &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'Event{id: $id, title: $title, date: $date, location: $location}';
   }
 }

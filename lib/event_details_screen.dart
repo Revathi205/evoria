@@ -157,7 +157,7 @@ class EventDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 16.0),
                   
                   // Tags
-                  if (event.tags.isNotEmpty) ...[
+                  if ((event.tags?.isNotEmpty ?? false)) ...[
                     Text(
                       'Tags',
                       style: Theme.of(context).textTheme.titleLarge,
@@ -166,7 +166,7 @@ class EventDetailsScreen extends StatelessWidget {
                     Wrap(
                       spacing: 8.0,
                       runSpacing: 8.0,
-                      children: event.tags.map((tag) {
+                      children: event.tags!.map((tag) {
                         return Chip(
                           label: Text(tag),
                           backgroundColor: Colors.grey[200],

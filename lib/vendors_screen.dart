@@ -157,7 +157,7 @@ class _VendorsScreenState extends State<VendorsScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => VendorDetailsScreen(vendor: vendor),
+              builder: (context) => VendorDetailsScreen(vendorData: vendor),
             ),
           );
         },
