@@ -34,19 +34,35 @@ Evoria is a futuristic event management mobile app designed to streamline the pr
  Realtime Sync: Vendor details update across relevant pages.
 
 ## Screens (UI Snapshots)
-HomePage|Event Details|	Vendor Page|	Add Event
-![WhatsApp Image 2025-06-26 at 21 27 51_fa6182de](https://github.com/user-attachments/assets/eb7d90b5-08ea-47b9-b5af-088a2972a415)
-![image](https://github.com/user-attachments/assets/e307f353-efca-48af-bda0-d068413ebd70)
+| Home Screen | calender | Explore page  | 
+|---------------|---------------|-------------|
+|![WhatsApp Image 2025-06-26 at 21 27 51_fa6182de](https://github.com/user-attachments/assets/7a9b8c6e-0e90-4941-ac19-8ff5ec123d42)|![IMG-20250626-WA0015](https://github.com/user-attachments/assets/ee0f2e6c-6c10-4f4a-81d5-c64b3790ea13)|![WhatsApp Image 2025-06-26 at 21 57 08_608caa1f](https://github.com/user-attachments/assets/6c2176c6-94b9-41ab-9276-1cb725aeeb4e)|
+
+
+| VENDOR PAGE 1 | VENDOR PAGE 2 | Profile page  | Profile page 2 |
+|---------------|---------------|-------------|-------------|
+|![IMG-20250626-WA0014](https://github.com/user-attachments/assets/b3df3a5a-07fa-4cf4-87b2-bf7a36259876)|![IMG-20250626-WA0013](https://github.com/user-attachments/assets/05620d91-4959-4497-8047-020b2e7e7599)|![IMG-20250626-WA0016](https://github.com/user-attachments/assets/24e14416-6b03-423b-97a3-765e366aec57)|![IMG-20250626-WA0017](https://github.com/user-attachments/assets/0b232f80-6184-41b4-b203-38937b61b5ed)|
+
+| Payement page  |
+|---------------|
+|![IMG-20250626-WA0021](https://github.com/user-attachments/assets/eb2f5c86-3bdc-4d83-9974-4671d8ac3a3a)
+|
+
+##  Tech Stack
+Frontend: Flutter (Dart)
+
+Backend: Firebase
+
+Database: Firestore
+
+Authentication: Firebase Auth
+
+Design: Figma, Canva (for mockups & assets)
+
+## Figma Link 
+ :https://www.figma.com/design/D0QfubjPyo1MKK5QsGt02x/login-welcome-page?node-id=0-1&t=bsql2j6lTmgoLzX4-1
 
 
 
 
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
